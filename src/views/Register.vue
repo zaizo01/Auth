@@ -17,7 +17,7 @@
                 placeholder="Password"
                 v-model="secondPass"
             >
-            <button type="submit" :disabled="deactivate">Sign in</button>
+            <button type="submit" :disabled="!deactivate">Sign in</button>
         </form>
         <p v-if="error">{{ error }}</p>
         
@@ -41,7 +41,7 @@ export default {
     computed: {
         ...mapState(['error']),
         deactivate(){
-            return true;
+            return this.firstPass === this.secondPass && this.firstPass !== '' && this.firstPass > 5;
         }
     },
     
