@@ -1,20 +1,23 @@
 <template>
   <div id="app">
     <div id="nav">
-      <router-link to="/">Index</router-link> |
-      <router-link to="/register">Register</router-link> |
-      <router-link to="/login">Login</router-link>
-      <button @click="signOff">Sign Off</button>
+      <router-link to="/" v-if="exitUser">Home</router-link> |
+      <router-link to="/register" v-if="!exitUser">Register</router-link> |
+      <router-link to="/login" v-if="!exitUser">Login</router-link>
+      <button @click="signOff" v-if="exitUser">Sign Off</button>
     </div>
     <router-view/>
   </div>
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 export default {
   methods: {
     ...mapActions(['signOff'])
+  },
+  computed: {
+    ...mapGetters(['exitUser'])
   },
 }
 </script>
