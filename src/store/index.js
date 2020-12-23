@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { auth } from '../firebase'
+
+import { auth, db } from '../firebase'
 import router from '../router'
 
 Vue.use(Vuex)
@@ -9,6 +10,7 @@ export default new Vuex.Store({
   state: {
     user: null,
     error: null,
+    tareas: []
   },
   mutations: {
     setUser(state, payload){
@@ -16,9 +18,26 @@ export default new Vuex.Store({
     },
     setError(state, payload){
       state.error = payload;
+    },
+    setTareas(state, payload){
+      state.tareas = payload;
     }
   },
   actions: {
+    getTareas({commit, state}){
+      const tareas = []
+      db.collection(state.user.email).get()
+      .then(resp => {
+          resp.forEach(doc => {
+              console.log(doc.id)
+              console.log(doc.data())
+              let tarea = doc.data()
+              tarea.id = doc.id
+              tareas.push(tarea)
+          })
+          commit('setTareas', tareas)
+      })
+    },
     createUser({commit}, user){
       auth.createUserWithEmailAndPassword(user.email, user.password)
           .then(resp => {
@@ -27,8 +46,13 @@ export default new Vuex.Store({
               email: resp.user.email,
               uid: resp.user.uid
             }
-            commit('setUser', userCreated);
-            router.push('/');
+
+            db.collection(resp.user.email).add({
+              name: 'example'
+            }).then(doc => {
+              commit('setUser', userCreated);
+              router.push('/');
+            }).catch(error => console.log(error)) 
           })
           .catch(error => {
             console.log(error);
